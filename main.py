@@ -228,7 +228,7 @@ if __name__ == '__main__':
     while not stop:
         vyberKociek(kocky, vybraneKocky1, vybraneKocky2, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2)
 
-        # todo kto ide prvy a ako to ovplyvni vybery ...
+        # todo kto ide prvy a ako to ovplyvni vybery
         # hrac1 vyberie boha
         # hrac2 vyberie boha
 
