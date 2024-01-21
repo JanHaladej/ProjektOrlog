@@ -158,22 +158,19 @@ def doplnOstatneKocky(kocky, vybraneKocky):
     return vybraneKocky
 #ked uz prebehli 2 rollovania tak 3 uz nevyberam kocky ale automaticky sa daju rollnute
 
-def vyberKociek(kocky, vybraneKocky1, vybraneKocky2, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2):
-    vyberKocky(kocky, vybraneKocky1)
-    #print('\n' * 100)
-    vypisHraciaPlocha(vybraneKocky1, vybraneKocky2, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2)
+def vyberKociek(kocky, vybraneKocky1, vybraneKocky2, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2, ktoIdePrvy):
 
-    vyberKocky(kocky, vybraneKocky2)
-    #print('\n' * 100)
-    vypisHraciaPlocha(vybraneKocky1, vybraneKocky2, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2)
-
-    vyberKocky(kocky, vybraneKocky1)
-    #print('\n' * 100)
-    vypisHraciaPlocha(vybraneKocky1, vybraneKocky2, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2)
-
-    vyberKocky(kocky, vybraneKocky2)
-    #print('\n' * 100)
-    vypisHraciaPlocha(vybraneKocky1, vybraneKocky2, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2)
+    for i in range(2):
+        if(ktoIdePrvy):
+            vyberKocky(kocky, vybraneKocky1)
+            vypisHraciaPlocha(vybraneKocky1, vybraneKocky2, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2)
+            vyberKocky(kocky, vybraneKocky2)
+            vypisHraciaPlocha(vybraneKocky1, vybraneKocky2, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2)
+        else:
+            vyberKocky(kocky, vybraneKocky2)
+            vypisHraciaPlocha(vybraneKocky1, vybraneKocky2, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2)
+            vyberKocky(kocky, vybraneKocky1)
+            vypisHraciaPlocha(vybraneKocky1, vybraneKocky2, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2)
 
     doplnOstatneKocky(kocky, vybraneKocky1)
     doplnOstatneKocky(kocky, vybraneKocky2)
@@ -213,47 +210,57 @@ def zistiStatyKociek(vybraneKocky):
             stityHP += 1
             bozskeTokeny += 1
     return sekeraDMG, sipDMG, rukyDMG, helmyHP, stityHP, bozskeTokeny
+#vrati vsetky premenne podla kociek co bolo hodene
 
+def vypocitajStavPodlaPremennych(vybraneKocky1, vybraneKocky2, bozskeTokenyHrac1, bozskeTokenyHrac2, zivotyHrac1, zivotyHrac2):
+    sekeraDMG1, sipDMG1, rukyDMG1, helmyHP1, stityHP1, bozskeTokeny1 = zistiStatyKociek(vybraneKocky1)
+    sekeraDMG2, sipDMG2, rukyDMG2, helmyHP2, stityHP2, bozskeTokeny2 = zistiStatyKociek(vybraneKocky2)
+
+    bozskeTokenyHrac1 = bozskeTokenyHrac1 + bozskeTokeny1 - rukyDMG2
+    bozskeTokenyHrac2 = bozskeTokenyHrac2 + bozskeTokeny2 - rukyDMG1
+
+    sekery1Helmy2Rozdiel = helmyHP2 - sekeraDMG1
+    sekery2Helmy1Rozdiel = helmyHP1 - sekeraDMG2
+
+    sipy1Stity2Rozdiel = stityHP2 - sipDMG1
+    sipy2Stity1Rozdiel = stityHP1 - sipDMG2
+
+    if sekery1Helmy2Rozdiel < 0:
+        zivotyHrac2 += sekery1Helmy2Rozdiel
+    if sekery2Helmy1Rozdiel < 0:
+        zivotyHrac1 += sekery2Helmy1Rozdiel
+
+    if sipy1Stity2Rozdiel < 0:
+        zivotyHrac2 += sipy1Stity2Rozdiel
+    if sipy2Stity1Rozdiel < 0:
+        zivotyHrac1 += sipy2Stity1Rozdiel
+
+    return bozskeTokenyHrac1, bozskeTokenyHrac2, zivotyHrac1, zivotyHrac2
+#upravi zivoty a tokeny podla vybranych kociek
 
 def resetRound():
     vybraneKocky1 = [None] * 6
     vybraneKocky2 = [None] * 6
     return vybraneKocky1, vybraneKocky2
+#vyprazdni kocky
 
 if __name__ == '__main__':
 
     kocky, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2, vybraneKocky1, vybraneKocky2 = onStart()
 
+    ktoIdePrvy = random.choice([True, False])
+
     stop = False
     while not stop:
-        vyberKociek(kocky, vybraneKocky1, vybraneKocky2, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2)
+        #hraci vyberu kocky
+        vyberKociek(kocky, vybraneKocky1, vybraneKocky2, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2, ktoIdePrvy)
 
-        # todo kto ide prvy a ako to ovplyvni vybery
-        # hrac1 vyberie boha
-        # hrac2 vyberie boha
+        # hraci vyberu akciu boha
 
-        sekeraDMG1, sipDMG1, rukyDMG1, helmyHP1, stityHP1, bozskeTokeny1 = zistiStatyKociek(vybraneKocky1)
-        sekeraDMG2, sipDMG2, rukyDMG2, helmyHP2, stityHP2, bozskeTokeny2 = zistiStatyKociek(vybraneKocky2)
+        #vypocita sa stav podla vybranych kociek hracov
+        bozskeTokenyHrac1, bozskeTokenyHrac2, zivotyHrac1, zivotyHrac2 = vypocitajStavPodlaPremennych(vybraneKocky1, vybraneKocky2, bozskeTokenyHrac1, bozskeTokenyHrac2, zivotyHrac1, zivotyHrac2)
 
-        bozskeTokenyHrac1 = bozskeTokenyHrac1 + bozskeTokeny1 - rukyDMG2
-        bozskeTokenyHrac2 = bozskeTokenyHrac2 + bozskeTokeny2 - rukyDMG1
-
-        sekery1Helmy2Rozdiel = helmyHP2 - sekeraDMG1
-        sekery2Helmy1Rozdiel = helmyHP1 - sekeraDMG2
-
-        sipy1Stity2Rozdiel = stityHP2 - sipDMG1
-        sipy2Stity1Rozdiel = stityHP1 - sipDMG2
-
-        if sekery1Helmy2Rozdiel < 0:
-            zivotyHrac2 += sekery1Helmy2Rozdiel
-        if sekery2Helmy1Rozdiel < 0:
-            zivotyHrac1 += sekery2Helmy1Rozdiel
-
-        if sipy1Stity2Rozdiel < 0:
-            zivotyHrac2 += sipy1Stity2Rozdiel
-        if sipy2Stity1Rozdiel < 0:
-            zivotyHrac1 += sipy2Stity1Rozdiel
-
+        #vyprazdnenie kociek
         vybraneKocky1, vybraneKocky2 = resetRound()
 
         vypisHraciaPlocha(vybraneKocky1, vybraneKocky2, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2)
