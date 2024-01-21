@@ -25,7 +25,8 @@ def onStart():
     bohoviaHrac2 = [1, 2, 3]
     vybraneKocky1 = [None] * 6
     vybraneKocky2 = [None] * 6
-    return kocky, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2, vybraneKocky1, vybraneKocky2
+    hrac1IdePrvy = random.choice([True, False])
+    return kocky, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2, vybraneKocky1, vybraneKocky2, hrac1IdePrvy
 #definicia premmennych na zaciatku
 
 def vypisHraciaPlocha(vybraneKocky1, vybraneKocky2, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2):
@@ -106,46 +107,32 @@ def vyberKocky(kocky, vybraneKocky):
     temp = []
     tempIdx = []
 
-    ##print("aktualne vybrane kocky")
-
-    ##vypis povodnych vybranych kociek
-    ##for i in range(6):
-        ##print(vybraneKocky[i], end=" ")
-
-    ##print()
-
     #nech sa zobrazia na vyber iba pre volne kocky
     for i in range(6):
         if vybraneKocky[i] == None:
             temp.append(kocky[i].hodKockou())
             tempIdx.append(i)
 
-    if len(temp) > 0:
+    #ak si este moze vybrat
+    while len(temp) > 0:
         #vypis moznosti
-        print("Index znaku:", end=" ")
-        for i in range(len(tempIdx)):
-            print(i, end=" ")
-        print()
-        print("Znak na kocke:", end=" ")
-        for i in range(len(temp)):
-            print(str(temp[i]), end=" ")
-        print()
+        for j in range(len(temp)):
+            print("Kocka: " + str(tempIdx[j]) + " ma znak: " + str(temp[j]))
 
-        #nech si veberie z volnych
-        moznosti = input("Vyber si kocky: ").split()
-        int_list = [int(num) for num in moznosti]
+        print("Ukoncenie kola: 6")
 
-        #nech sa pridaju do vybranych kociek
-        for cislo in int_list:
-            vybraneKocky[tempIdx[cislo]] = temp[cislo]
-
-        ##print("aktualne vybrane kocky po vybere")
-
-        ##vypis novo vybranych kociek
-        ##for i in range(6):
-            ##print(vybraneKocky[i], end=" ")
-
-        ##print()
+        #vyber moznosti
+        choice = int(input())
+        if choice == 6:
+            break
+        else:
+            for k in tempIdx:
+                if k == choice:
+                    indexVtemp = tempIdx.index(k)
+                    vybraneKocky[k] = temp[indexVtemp]
+                    temp.pop(indexVtemp)
+                    tempIdx.remove(k)
+                    break
 
     return vybraneKocky
 #vybranie kociek ktore si chcem nechat a zahrat
@@ -158,24 +145,26 @@ def doplnOstatneKocky(kocky, vybraneKocky):
     return vybraneKocky
 #ked uz prebehli 2 rollovania tak 3 uz nevyberam kocky ale automaticky sa daju rollnute
 
-def vyberKociek(kocky, vybraneKocky1, vybraneKocky2, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2, ktoIdePrvy):
+def vyberKociek(kocky, vybraneKocky1, vybraneKocky2, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2, hrac1IdePrvy):
 
     for i in range(2):
-        if(ktoIdePrvy):
+        if(hrac1IdePrvy):
+            print("Hrac 1 vybera kocky:")
             vyberKocky(kocky, vybraneKocky1)
             vypisHraciaPlocha(vybraneKocky1, vybraneKocky2, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2)
+            print("Hrac 2 vybera kocky:")
             vyberKocky(kocky, vybraneKocky2)
             vypisHraciaPlocha(vybraneKocky1, vybraneKocky2, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2)
         else:
+            print("Hrac 2 vybera kocky:")
             vyberKocky(kocky, vybraneKocky2)
             vypisHraciaPlocha(vybraneKocky1, vybraneKocky2, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2)
+            print("Hrac 1 vybera kocky:")
             vyberKocky(kocky, vybraneKocky1)
             vypisHraciaPlocha(vybraneKocky1, vybraneKocky2, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2)
 
     doplnOstatneKocky(kocky, vybraneKocky1)
     doplnOstatneKocky(kocky, vybraneKocky2)
-    #print('\n' * 100)
-    vypisHraciaPlocha(vybraneKocky1, vybraneKocky2, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2)
 #cele vyberanie kociek
 
 def zistiStatyKociek(vybraneKocky):
@@ -246,15 +235,17 @@ def resetRound():
 
 if __name__ == '__main__':
 
-    kocky, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2, vybraneKocky1, vybraneKocky2 = onStart()
+    kocky, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2, vybraneKocky1, vybraneKocky2, hrac1IdePrvy = onStart()
 
-    ktoIdePrvy = random.choice([True, False])
+    vypisHraciaPlocha(vybraneKocky1, vybraneKocky2, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2)
 
     stop = False
     while not stop:
         #hraci vyberu kocky
-        vyberKociek(kocky, vybraneKocky1, vybraneKocky2, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2, ktoIdePrvy)
-
+        vyberKociek(kocky, vybraneKocky1, vybraneKocky2, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2, hrac1IdePrvy)
+        #vymena poradia hracov
+        hrac1IdePrvy = not hrac1IdePrvy
+        vypisHraciaPlocha(vybraneKocky1, vybraneKocky2, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2)
         # hraci vyberu akciu boha
 
         #vypocita sa stav podla vybranych kociek hracov
