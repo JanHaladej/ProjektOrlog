@@ -15,14 +15,107 @@ class Kocka:
         return self.znaky[random.randint(0, 5)]
 
 
+class Boh:
+    def __init__(self, meno, priorita, cena1, cena2, cena3):
+        self.meno = meno
+        self.priorita = priorita
+        self.cena1 = cena1
+        self.cena2 = cena2
+        self.cena3 = cena3
+
+    def getMeno(self):
+        return self.meno
+
+    def getPriorita(self):
+        return self.priorita
+
+    def getCena(self, level):
+        if level == 1:
+            return self.cena1
+        elif level == 2:
+            return self.cena2
+        else:
+            return self.cena3
+
+class Thor(Boh):
+    def __init__(self, meno, priorita, cena1, cena2, cena3):
+        super().__init__(self, meno, priorita, cena1, cena2, cena3)
+
+    def doStuff(self, zivotyOponentHrac, bozskeTokeny, levelKuzla):
+        if levelKuzla == 1:
+            if self.getCena(1) <= bozskeTokeny:
+                zivotyOponentHrac = zivotyOponentHrac - 2
+                bozskeTokeny = bozskeTokeny - 4
+                return zivotyOponentHrac, bozskeTokeny
+
+        elif levelKuzla == 2:
+            if self.getCena(2) <= bozskeTokeny:
+                zivotyOponentHrac = zivotyOponentHrac - 5
+                bozskeTokeny = bozskeTokeny - 8
+                return zivotyOponentHrac, bozskeTokeny
+
+        else:
+            if self.getCena(3) <= bozskeTokeny:
+                zivotyOponentHrac = zivotyOponentHrac - 8
+                bozskeTokeny = bozskeTokeny - 12
+                return zivotyOponentHrac, bozskeTokeny
+
+
+class Thrymr(Boh):
+    def __init__(self, meno, priorita, cena1, cena2, cena3):
+        super().__init__(self, meno, priorita, cena1, cena2, cena3)
+
+    def doStuff(self, bozskeTokeny, levelKuzla, levelKuzlaOponent):
+        if levelKuzla == 1:
+            if self.getCena(1) <= bozskeTokeny:
+                levelKuzlaOponent = levelKuzlaOponent - 1
+                bozskeTokeny = bozskeTokeny - 3
+                return levelKuzlaOponent, bozskeTokeny
+
+        elif levelKuzla == 2:
+            if self.getCena(2) <= bozskeTokeny:
+                levelKuzlaOponent = levelKuzlaOponent - 2
+                bozskeTokeny = bozskeTokeny - 6
+                return levelKuzlaOponent, bozskeTokeny
+
+        else:
+            if self.getCena(3) <= bozskeTokeny:
+                levelKuzlaOponent = levelKuzlaOponent - 3
+                bozskeTokeny = bozskeTokeny - 9
+                return levelKuzlaOponent, bozskeTokeny
+
+
+class Vidar(Boh):
+    def __init__(self, meno, priorita, cena1, cena2, cena3):
+        super().__init__(self, meno, priorita, cena1, cena2, cena3)
+
+    def doStuff(self, helmyHP, bozskeTokeny, levelKuzla):
+        if levelKuzla == 1:
+            if self.getCena(1) <= bozskeTokeny:
+                helmyHP = helmyHP - 2
+                bozskeTokeny = bozskeTokeny - 2
+                return helmyHP, bozskeTokeny
+
+        elif levelKuzla == 2:
+            if self.getCena(2) <= bozskeTokeny:
+                helmyHP = helmyHP - 4
+                bozskeTokeny = bozskeTokeny - 4
+                return helmyHP, bozskeTokeny
+
+        else:
+            if self.getCena(3) <= bozskeTokeny:
+                helmyHP = helmyHP - 6
+                bozskeTokeny = bozskeTokeny - 6
+                return helmyHP, bozskeTokeny
+
 def onStart():
     kocky = [Kocka(1, 6, 4, 7, 5, 1), Kocka(1, 2, 7, 4, 9, 1), Kocka(1, 3, 8, 5, 6, 1), Kocka(1, 7, 8, 1, 5, 2), Kocka(1, 3, 4, 6, 9, 1), Kocka(1, 3, 2, 8, 9, 1)]
     zivotyHrac1 = 15
     zivotyHrac2 = 15
     bozskeTokenyHrac1 = 0
     bozskeTokenyHrac2 = 0
-    bohoviaHrac1 = [1, 2, 3]
-    bohoviaHrac2 = [1, 2, 3]
+    bohoviaHrac1 = [1, 4, 5]
+    bohoviaHrac2 = [1, 4, 5]
     vybraneKocky1 = [None] * 6
     vybraneKocky2 = [None] * 6
     hrac1IdePrvy = random.choice([True, False])
@@ -165,7 +258,37 @@ def vyberKociek(kocky, vybraneKocky1, vybraneKocky2, zivotyHrac1, zivotyHrac2, b
 
     doplnOstatneKocky(kocky, vybraneKocky1)
     doplnOstatneKocky(kocky, vybraneKocky2)
+    vypisHraciaPlocha(vybraneKocky1, vybraneKocky2, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2)
 #cele vyberanie kociek
+
+def vyberBozskuAkciu(bohoviaHrac1, bohoviaHrac2, hrac1IdePrvy):
+    if hrac1IdePrvy:
+        for i in bohoviaHrac1:
+            print("Boh " + str(i) + ": " + str(bohoviaHrac1[i]))
+        print("4. Nevybrat ziadneho")
+
+        choiceHrac1 = int(input())
+
+        for j in bohoviaHrac2:
+            print("Boh " + str(j) + ": " + str(bohoviaHrac2[j]))
+        print("4. Nevybrat ziadneho")
+
+        choiceHrac2 = int(input())
+    else:
+        for j in bohoviaHrac2:
+            print("Boh " + str(j) + ": " + str(bohoviaHrac2[j]))
+        print("4. Nevybrat ziadneho")
+
+        choiceHrac2 = int(input())
+
+        for i in bohoviaHrac1:
+            print("Boh " + str(i) + ": " + str(bohoviaHrac1[i]))
+        print("4. Nevybrat ziadneho")
+
+        choiceHrac1 = int(input())
+
+    return choiceHrac1, choiceHrac2
+#ktora akcia sa ma zahrat
 
 def zistiStatyKociek(vybraneKocky):
     sekeraDMG = 0
@@ -201,16 +324,48 @@ def zistiStatyKociek(vybraneKocky):
     return sekeraDMG, sipDMG, rukyDMG, helmyHP, stityHP, bozskeTokeny
 #vrati vsetky premenne podla kociek co bolo hodene
 
-def vypocitajStavPodlaPremennych(vybraneKocky1, vybraneKocky2, bozskeTokenyHrac1, bozskeTokenyHrac2, zivotyHrac1, zivotyHrac2):
+def vypocitajStavPodlaPremennych(vybraneKocky1, vybraneKocky2, bozskeTokenyHrac1, bozskeTokenyHrac2, zivotyHrac1, zivotyHrac2, hrac1IdePrvy):
     sekeraDMG1, sipDMG1, rukyDMG1, helmyHP1, stityHP1, bozskeTokeny1 = zistiStatyKociek(vybraneKocky1)
     sekeraDMG2, sipDMG2, rukyDMG2, helmyHP2, stityHP2, bozskeTokeny2 = zistiStatyKociek(vybraneKocky2)
 
-    bozskeTokenyHrac1 = bozskeTokenyHrac1 + bozskeTokeny1 - rukyDMG2
-    bozskeTokenyHrac2 = bozskeTokenyHrac2 + bozskeTokeny2 - rukyDMG1
+    #bozske tokeny/ruky
+    bozskeTokenyHrac1 = bozskeTokenyHrac1 + bozskeTokeny1
+    bozskeTokenyHrac2 = bozskeTokenyHrac2 + bozskeTokeny2
 
+    if hrac1IdePrvy:
+        if bozskeTokenyHrac2 - rukyDMG1 < 0:
+            bozskeTokenyHrac1 = bozskeTokenyHrac1 + rukyDMG1 + (bozskeTokenyHrac2 - rukyDMG1)
+            bozskeTokenyHrac2 = 0
+        else:
+            bozskeTokenyHrac1 = bozskeTokenyHrac1 + rukyDMG1
+            bozskeTokenyHrac2 = bozskeTokenyHrac2 - rukyDMG1
+
+        if bozskeTokenyHrac1 - rukyDMG2 < 0:
+            bozskeTokenyHrac2 = bozskeTokenyHrac2 + rukyDMG2 + (bozskeTokenyHrac1 - rukyDMG2)
+            bozskeTokenyHrac1 = 0
+        else:
+            bozskeTokenyHrac2 = bozskeTokenyHrac2 + rukyDMG2
+            bozskeTokenyHrac1 = bozskeTokenyHrac1 - rukyDMG2
+    else:
+        if bozskeTokenyHrac1 - rukyDMG2 < 0:
+            bozskeTokenyHrac2 = bozskeTokenyHrac2 + rukyDMG2 + (bozskeTokenyHrac1 - rukyDMG2)
+            bozskeTokenyHrac1 = 0
+        else:
+            bozskeTokenyHrac2 = bozskeTokenyHrac2 + rukyDMG2
+            bozskeTokenyHrac1 = bozskeTokenyHrac1 - rukyDMG2
+
+        if bozskeTokenyHrac2 - rukyDMG1 < 0:
+            bozskeTokenyHrac1 = bozskeTokenyHrac1 + rukyDMG1 + (bozskeTokenyHrac2 - rukyDMG1)
+            bozskeTokenyHrac2 = 0
+        else:
+            bozskeTokenyHrac1 = bozskeTokenyHrac1 + rukyDMG1
+            bozskeTokenyHrac2 = bozskeTokenyHrac2 - rukyDMG1
+
+    #helmy/sekery
     sekery1Helmy2Rozdiel = helmyHP2 - sekeraDMG1
     sekery2Helmy1Rozdiel = helmyHP1 - sekeraDMG2
 
+    #stity/sipy
     sipy1Stity2Rozdiel = stityHP2 - sipDMG1
     sipy2Stity1Rozdiel = stityHP1 - sipDMG2
 
@@ -227,10 +382,11 @@ def vypocitajStavPodlaPremennych(vybraneKocky1, vybraneKocky2, bozskeTokenyHrac1
     return bozskeTokenyHrac1, bozskeTokenyHrac2, zivotyHrac1, zivotyHrac2
 #upravi zivoty a tokeny podla vybranych kociek
 
-def resetRound():
+def resetRound(hrac1IdePrvy):
     vybraneKocky1 = [None] * 6
     vybraneKocky2 = [None] * 6
-    return vybraneKocky1, vybraneKocky2
+    hrac1IdePrvy = not hrac1IdePrvy
+    return vybraneKocky1, vybraneKocky2, hrac1IdePrvy
 #vyprazdni kocky
 
 if __name__ == '__main__':
@@ -243,16 +399,14 @@ if __name__ == '__main__':
     while not stop:
         #hraci vyberu kocky
         vyberKociek(kocky, vybraneKocky1, vybraneKocky2, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2, hrac1IdePrvy)
-        #vymena poradia hracov
-        hrac1IdePrvy = not hrac1IdePrvy
-        vypisHraciaPlocha(vybraneKocky1, vybraneKocky2, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2)
+
         # hraci vyberu akciu boha
 
         #vypocita sa stav podla vybranych kociek hracov
-        bozskeTokenyHrac1, bozskeTokenyHrac2, zivotyHrac1, zivotyHrac2 = vypocitajStavPodlaPremennych(vybraneKocky1, vybraneKocky2, bozskeTokenyHrac1, bozskeTokenyHrac2, zivotyHrac1, zivotyHrac2)
+        bozskeTokenyHrac1, bozskeTokenyHrac2, zivotyHrac1, zivotyHrac2 = vypocitajStavPodlaPremennych(vybraneKocky1, vybraneKocky2, bozskeTokenyHrac1, bozskeTokenyHrac2, zivotyHrac1, zivotyHrac2, hrac1IdePrvy)
 
-        #vyprazdnenie kociek
-        vybraneKocky1, vybraneKocky2 = resetRound()
+        #resetovanie kola
+        vybraneKocky1, vybraneKocky2, hrac1IdePrvy = resetRound(hrac1IdePrvy)
 
         vypisHraciaPlocha(vybraneKocky1, vybraneKocky2, zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, bozskeTokenyHrac1, bozskeTokenyHrac2)
 
