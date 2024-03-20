@@ -7,15 +7,32 @@ bozskeTokenyHrac1 = 0
 bozskeTokenyHrac2 = 0
 bohoviaHrac1 = [None]
 bohoviaHrac2 = [None]
+nevybraneKocky1 = [None] * 6
 vybraneKocky1 = [None] * 6
+nevybraneKocky2 = [None] * 6
 vybraneKocky2 = [None] * 6
 hrac1IdePrvy = random.choice([True, False])
+kolo = 0
 
+#staticke premenne globalne
 kocky = [None]
-
+slovnik = {
+        1: (0, 1),
+        2: (0, 2),
+        3: (0, 3),
+        4: (0, 4),
+        5: (0, 5),
+        6: (1, 2),
+        7: (1, 3),
+        8: (1, 4),
+        9: (1, 5)
+    }
 
 # interakcie s agentom ----------------------------------------
 def getAkcieVyberKociek(hrac):
+    global vybraneKocky1, vybraneKocky2
+    #todo prepisat do metody nech to neni 2 krat to iste
+
     pole = [0] * 7
 
     # skip vyber
@@ -23,29 +40,81 @@ def getAkcieVyberKociek(hrac):
 
     if hrac == 1:
         for i in range(6):
-            if bohoviaHrac1[i] is None:
+            if vybraneKocky1[i] is None:
                 pole[i] = 1
             else:
                 pole[i] = 0
     else:
         for i in range(6):
-            if bohoviaHrac2[i] is None:
+            if vybraneKocky2[i] is None:
                 pole[i] = 1
             else:
                 pole[i] = 0
     return pole
-
 
 def getAkcieVyberBoha():
     pole = [0] * 4
     pole[3] = 1  # todo zatial preskakujeme bohov preto 0 vsade a 1 na skip
     return pole
 
-
 def getAkcieVyberBozskejAkcie():
     pole = [1] * 3
     return pole
 
+def zistiHodnotyPreZnak(znak):
+    global slovnik
+    if znak is None:
+        return 0, 0
+    else:
+        return slovnik[znak]
+
+def setStavKockyHracov():
+    global vybraneKocky1, nevybraneKocky1, vybraneKocky2, nevybraneKocky2
+    # * 13 lebo nechcem prepisovat vysledky do ineho arrayu v hlavnej metode na pytanie stavu a teda posledny stlpec si dosadim veci ja
+    array = [[0] * 13 for _ in range(7)]
+
+    for col in range(6):
+        if vybraneKocky1[col] is None:
+            zlatyBorder, riadokPreZnak = zistiHodnotyPreZnak(nevybraneKocky1[col])
+            #array[0][col] = 0 #nie je potrebne lebo nainicializovane na 0
+        else:
+            zlatyBorder, riadokPreZnak = zistiHodnotyPreZnak(vybraneKocky1[col])
+            array[0][col] = 1
+
+        #aby sa neukladalo 1 ked obe maju None vsade napr pri prvom stave po spusteni
+        if riadokPreZnak != 0:
+            array[riadokPreZnak][col] = 1
+            array[6][col] = zlatyBorder
+
+    for col in range(6):
+        if vybraneKocky2[col] is None:
+            zlatyBorder, riadokPreZnak = zistiHodnotyPreZnak(nevybraneKocky2[col])
+        else:
+            zlatyBorder, riadokPreZnak = zistiHodnotyPreZnak(vybraneKocky2[col])
+            array[0][col + 6] = 1
+
+        if riadokPreZnak != 0:
+            array[riadokPreZnak][col + 6] = 1
+            array[6][col + 6] = zlatyBorder
+
+    return array
+
+def getStavGlobalnyStav():
+    global kolo, zivotyHrac1, zivotyHrac2, hrac1IdePrvy
+
+    globalnyStav = setStavKockyHracov()
+    globalnyStav[0][12] = zivotyHrac1
+    globalnyStav[1][12] = zivotyHrac2
+    globalnyStav[2][12] = 1 if hrac1IdePrvy else 0
+    globalnyStav[3][12] = kolo
+
+    # for row in globalnyStav:
+    #     # Iterate over each element in the row
+    #     for element in row:
+    #         print(element, end=' ')  # Print the element followed by a space
+    #     print()  # Print a newline after each row
+
+    return globalnyStav
 
 # classky ---------------------------------------------------
 class Kocka:
@@ -303,7 +372,7 @@ def vypisKociek(vybraneKockyArray):
 
 # vypis mien co je hodene na kocke
 
-def vyberKocky(kocky, vybraneKocky):
+def vyberKocky(kocky, vybraneKocky, nevybraneKocky):
     temp = []
     tempIdx = []
 
@@ -324,6 +393,8 @@ def vyberKocky(kocky, vybraneKocky):
         # vyber moznosti
         choice = int(input())
         if choice == 6:
+            for j in range(len(temp)):
+                nevybraneKocky[tempIdx[j]] = temp[j]
             break
         else:
             for k in tempIdx:
@@ -339,37 +410,41 @@ def vyberKocky(kocky, vybraneKocky):
 
 # vybranie kociek ktore si chcem nechat a zahrat
 
-def doplnOstatneKocky(kocky, vybraneKocky):
+def doplnOstatneKocky(kocky, vybraneKocky, nevybraneKocky):
     for i in range(6):
         if vybraneKocky[i] == None:
             vybraneKocky[i] = kocky[i].hodKockou()
-
-    return vybraneKocky
+    nevybraneKocky = [None] * 6
 
 
 # ked uz prebehli 2 rollovania tak 3 uz nevyberam kocky ale automaticky sa daju rollnute
 
 def vyberKociek():
-    global kocky, vybraneKocky1, vybraneKocky2, hrac1IdePrvy
+    global kocky, vybraneKocky1, vybraneKocky2, nevybraneKocky1, nevybraneKocky2, hrac1IdePrvy, kolo
 
     for i in range(2):
+
+
+        kolo = i
+
         if (hrac1IdePrvy):
             print("Hrac 1 vybera kocky:")
-            vyberKocky(kocky, vybraneKocky1)
+            vyberKocky(kocky, vybraneKocky1, nevybraneKocky1)
             vypisHraciaPlocha()
             print("Hrac 2 vybera kocky:")
-            vyberKocky(kocky, vybraneKocky2)
+            vyberKocky(kocky, vybraneKocky2, nevybraneKocky2)
             vypisHraciaPlocha()
         else:
             print("Hrac 2 vybera kocky:")
-            vyberKocky(kocky, vybraneKocky2)
+            vyberKocky(kocky, vybraneKocky2, nevybraneKocky2)
             vypisHraciaPlocha()
             print("Hrac 1 vybera kocky:")
-            vyberKocky(kocky, vybraneKocky1)
+            vyberKocky(kocky, vybraneKocky1, nevybraneKocky1)
             vypisHraciaPlocha()
 
-    doplnOstatneKocky(kocky, vybraneKocky1)
-    doplnOstatneKocky(kocky, vybraneKocky2)
+    kolo = 2
+    doplnOstatneKocky(kocky, vybraneKocky1, nevybraneKocky1)
+    doplnOstatneKocky(kocky, vybraneKocky2, nevybraneKocky2)
     vypisHraciaPlocha()
 
 
@@ -571,6 +646,7 @@ if __name__ == '__main__':
 
     stop = False
     while not stop:
+
         # hraci vyberu kocky
         vyberKociek()
 
