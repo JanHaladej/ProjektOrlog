@@ -33,7 +33,6 @@ slovnik = {
 # interakcie s agentom ----------------------------------------
 def getAkcieVyberKociek(hrac):
     global vybraneKocky1, vybraneKocky2
-    # todo prepisat do metody nech to neni 2 krat to iste
 
     pole = [0] * 7
 
@@ -52,17 +51,12 @@ def getAkcieVyberKociek(hrac):
                 pole[i] = 1
             else:
                 pole[i] = 0
-    return pole
 
+    print()
+    for j in range(7):
+        print(pole[j], end=" ")
+    print()
 
-def getAkcieVyberBoha():
-    pole = [0] * 4
-    pole[3] = 1  # todo zatial preskakujeme bohov preto 0 vsade a 1 na skip
-    return pole
-
-
-def getAkcieVyberBozskejAkcie():
-    pole = [1] * 3
     return pole
 
 
@@ -76,8 +70,8 @@ def zistiHodnotyPreZnak(znak):
 
 def setStavKockyHracov():
     global vybraneKocky1, nevybraneKocky1, vybraneKocky2, nevybraneKocky2
-    # * 13 lebo nechcem prepisovat vysledky do ineho arrayu v hlavnej metode na pytanie stavu a teda posledny stlpec si dosadim veci ja
-    array = [[0] * 13 for _ in range(7)]
+
+    array = [[[0 for _ in range(2)] for _ in range(7)] for _ in range(7)]#inicializovane pre cely stavovy priestor
 
     for col in range(6):
         if vybraneKocky1[col] is None:
@@ -85,23 +79,23 @@ def setStavKockyHracov():
             # array[0][col] = 0 #nie je potrebne lebo nainicializovane na 0
         else:
             zlatyBorder, riadokPreZnak = zistiHodnotyPreZnak(vybraneKocky1[col])
-            array[0][col] = 1
+            array[0][col][0] = 1
 
         # aby sa neukladalo 1 ked obe maju None vsade napr pri prvom stave po spusteni
         if riadokPreZnak != 0:
-            array[riadokPreZnak][col] = 1
-            array[6][col] = zlatyBorder
+            array[riadokPreZnak][col][0] = 1
+            array[6][col][0] = zlatyBorder
 
     for col in range(6):
         if vybraneKocky2[col] is None:
             zlatyBorder, riadokPreZnak = zistiHodnotyPreZnak(nevybraneKocky2[col])
         else:
             zlatyBorder, riadokPreZnak = zistiHodnotyPreZnak(vybraneKocky2[col])
-            array[0][col + 6] = 1
+            array[0][col][1] = 1
 
         if riadokPreZnak != 0:
-            array[riadokPreZnak][col + 6] = 1
-            array[6][col + 6] = zlatyBorder
+            array[riadokPreZnak][col][1] = 1
+            array[6][col][1] = zlatyBorder
 
     return array
 
@@ -110,16 +104,18 @@ def getStavGlobalnyStav():
     global kolo, zivotyHrac1, zivotyHrac2, hrac1IdePrvy
 
     globalnyStav = setStavKockyHracov()
-    globalnyStav[0][12] = zivotyHrac1
-    globalnyStav[1][12] = zivotyHrac2
-    globalnyStav[2][12] = 1 if hrac1IdePrvy else 0
-    globalnyStav[3][12] = kolo
+    globalnyStav[0][6][0] = zivotyHrac1
+    globalnyStav[1][6][0] = zivotyHrac2
+    globalnyStav[2][6][0] = 1 if hrac1IdePrvy else 0
+    globalnyStav[3][6][0] = kolo
 
-    # for row in globalnyStav:
-    #     # Iterate over each element in the row
-    #     for element in row:
-    #         print(element, end=' ')  # Print the element followed by a space
-    #     print()  # Print a newline after each row
+    for k in range(2):
+        print(f"Layer z = {k}:")
+        for i in range(7):
+            for j in range(7):
+                print(globalnyStav[i][j][k], end=" ")
+            print()
+        print()
 
     return globalnyStav
 
@@ -286,7 +282,7 @@ def resetRound():
     bozskaAkciaHrac2 = None
 
 
-def doplnOstatneKocky(kocky, vybraneKocky, nevybraneKocky):
+def doplnOstatneKocky(vybraneKocky, nevybraneKocky):
     for i in range(6):
         if vybraneKocky[i] == None:
             vybraneKocky[i] = nevybraneKocky[i]
@@ -303,8 +299,8 @@ def step(aivstup):
                 randomVyberKocky()
 
         if kolo == 3:
-            doplnOstatneKocky(kocky, vybraneKocky1, nevybraneKocky1)
-            doplnOstatneKocky(kocky, vybraneKocky2, nevybraneKocky2)
+            doplnOstatneKocky(vybraneKocky1, nevybraneKocky1)
+            doplnOstatneKocky(vybraneKocky2, nevybraneKocky2)
             vypisHraciaPlocha()
             vypocitajStavPodlaPremennych()
             kolo = 0
@@ -316,7 +312,7 @@ def step(aivstup):
         vybraneKocky1[aivstup] = nevybraneKocky1[aivstup]
 
     vypisHraciaPlocha()
-    return getStavGlobalnyStav(), koniec
+    return getStavGlobalnyStav(), getAkcieVyberKociek(1), koniec
 
 
 def vypisKociek(vybraneKockyArray):
@@ -374,5 +370,5 @@ if __name__ == '__main__':
 
     stop = False
     while not stop:
-        hodKockami(1)  # vzdy nech sa hodia kocky lebo sak ide teraz dalsi step
-        var, stop = step(int(input("input: ")))
+        hodKockami(1)  # vzdy nech sa hodia kocky lebo sak ide teraz dalsi step, a v random hode sa vola 2 cize hod pre druheho hraca
+        var, var2, stop = step(int(input("input: ")))
