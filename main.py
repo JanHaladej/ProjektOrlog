@@ -169,7 +169,6 @@ def hodKockami(hraca):  # nech sa hodia kocky a daju sa do nevybranych aby sa z 
 
 
 def randomVyberKocky():
-    hodKockami(2)
     for i in range(6):
         if vybraneKocky2[i] is None and random.choice([True, False]):
             vybraneKocky2[i] = kocky[i].hodKockou()
@@ -281,6 +280,17 @@ def resetRound():
     bozskaAkciaHrac1 = None
     bozskaAkciaHrac2 = None
 
+    if not hrac1IdePrvy:
+        print("Random prvy")
+        hodKockami(2)
+        randomVyberKocky()
+        vypisHraciaPlocha()
+        #treba hodit aby aj AI vedelo z coho mam hadzat
+        hodKockami(1)
+    else:
+        print("Ai prve")
+        hodKockami(1)  #podla toho kto zacina sa hodia kocky
+
 
 def doplnOstatneKocky(vybraneKocky, nevybraneKocky):
     for i in range(6):
@@ -293,12 +303,20 @@ def step(aivstup):
 
     if aivstup == 6:  # ak ukonci kolo vtedy sa ide dalej dovtedy opakovane vybera
         kolo += 1
-        if hrac1IdePrvy:  # ak random este nesiel na rolluje a potom aj na dlasie kolo
+
+        #hadzanie random hodu ak ma hadzat, cize AI nejde za sebou
+        if hrac1IdePrvy:  # ak random este nesiel a rolluje a potom aj na dlasie kolo
+            hodKockami(2)
             randomVyberKocky()
-            if kolo < 3:  # toto sa vykona iba ak game stage je < ako 3 lebo potom uz nie na dlasie kolo
+            if kolo < 2:  # toto sa vykona iba ak game stage je < ako 3 lebo potom uz nie na dlasie kolo
+                hodKockami(2)
                 randomVyberKocky()
 
-        if kolo == 3:
+        #hodenie pre Ai na dalsie kolo
+        hodKockami(1)
+
+        #ukoncenie velkeho kola a vyhodnotenie
+        if kolo == 2:
             doplnOstatneKocky(vybraneKocky1, nevybraneKocky1)
             doplnOstatneKocky(vybraneKocky2, nevybraneKocky2)
             vypisHraciaPlocha()
@@ -364,11 +382,16 @@ if __name__ == '__main__':
 
     # vytvorenie classy a potom set stav zaciatku hry aby sa to dalo AIcku
     if not hrac1IdePrvy:
-        print("Ai nezacina prve")
+        print("Random prvy")
+        hodKockami(2)
         randomVyberKocky()
         vypisHraciaPlocha()
+        #treba hodit aby aj AI vedelo z coho mam hadzat
+        hodKockami(1)
+    else:
+        print("Ai prve")
+        hodKockami(1)  #podla toho kto zacina sa hodia kocky
 
     stop = False
     while not stop:
-        hodKockami(1)  # vzdy nech sa hodia kocky lebo sak ide teraz dalsi step, a v random hode sa vola 2 cize hod pre druheho hraca
         var, var2, stop = step(int(input("input: ")))
