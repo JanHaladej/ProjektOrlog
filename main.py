@@ -331,12 +331,19 @@ def step(aivstup):
             resetRound()
             if zivotyHrac1 < 1 or zivotyHrac2 < 1:
                 koniec = True
+                if zivotyHrac1 > 0 or zivotyHrac2 > 0:
+                    if zivotyHrac1 > 0:
+                        reward = 1
+                    else:
+                        reward = -1
+                else:
+                    reward = 0 #obaja prehrali lebo maju pod 0
 
     else:
         vybraneKocky1[aivstup] = nevybraneKocky1[aivstup]
 
     vypisHraciaPlocha()
-    return getStavKockyHracov(), getStavZivotyHracov(), getKoloAKtoPrvy(), getAkcieVyberKociek(1), koniec
+    return getStavKockyHracov(), getStavZivotyHracov(), getKoloAKtoPrvy(), getAkcieVyberKociek(1), koniec, reward
 
 
 def vypisKociek(vybraneKockyArray):
@@ -386,7 +393,7 @@ if __name__ == '__main__':
 
     onStart()
 
-    # vytvorenie classy a potom set stav zaciatku hry aby sa to dalo AIcku
+    # nastavenie prveho stavu
     if not hrac1IdePrvy:
         print("Random prvy")
         hodKockami(2)
@@ -396,8 +403,8 @@ if __name__ == '__main__':
         hodKockami(1)
     else:
         print("Ai prve")
-        hodKockami(1)  #podla toho kto zacina sa hodia kocky
+        hodKockami(1)
 
-    stop = False
-    while not stop:
-        stavKociek, stavZivotyHracov, stavKoloAKtoPrvy, maskaAkcii, terminal = step(int(input("input: ")))
+    terminal = False
+    while not terminal:
+        stavKociek, stavZivotyHracov, stavKoloAKtoPrvy, maskaAkcii, terminal, reward = step(int(input("input: ")))
