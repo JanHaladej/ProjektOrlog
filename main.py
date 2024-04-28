@@ -68,10 +68,12 @@ def zistiHodnotyPreZnak(znak):
         return slovnik[znak]
 
 
-def setStavKockyHracov():
+def getStavKockyHracov():
     global vybraneKocky1, nevybraneKocky1, vybraneKocky2, nevybraneKocky2
 
-    array = [[[0 for _ in range(2)] for _ in range(7)] for _ in range(7)]#inicializovane pre cely stavovy priestor
+    #x y z pre indexovanie potom
+    array = [[[0 for _ in range(2)] for _ in range(6)] for _ in range(7)]#inicializovane pre cely stavovy priestor
+
 
     for col in range(6):
         if vybraneKocky1[col] is None:
@@ -97,27 +99,37 @@ def setStavKockyHracov():
             array[riadokPreZnak][col][1] = 1
             array[6][col][1] = zlatyBorder
 
+    # for k in range(2):
+    #     print(f"Layer z = {k}:")
+    #     for i in range(7):
+    #         for j in range(6):
+    #             print(array[i][j][k], end=" ")
+    #         print()
+    #     print()
+
     return array
 
 
-def getStavGlobalnyStav():
-    global kolo, zivotyHrac1, zivotyHrac2, hrac1IdePrvy
+def getStavZivotyHracov():
+    global zivotyHrac1, zivotyHrac2
 
-    globalnyStav = setStavKockyHracov()
-    globalnyStav[0][6][0] = zivotyHrac1
-    globalnyStav[1][6][0] = zivotyHrac2
-    globalnyStav[2][6][0] = 1 if hrac1IdePrvy else 0
-    globalnyStav[3][6][0] = kolo
+    pole = [0] * 2
 
-    for k in range(2):
-        print(f"Layer z = {k}:")
-        for i in range(7):
-            for j in range(7):
-                print(globalnyStav[i][j][k], end=" ")
-            print()
-        print()
+    pole[0] = zivotyHrac1
+    pole[1] = zivotyHrac2
 
-    return globalnyStav
+    return pole
+
+
+def getKoloAKtoPrvy():
+    global kolo, hrac1IdePrvy
+
+    pole = [0] * 2
+
+    pole[0] = 1 if hrac1IdePrvy else 0
+    pole[1] = kolo
+
+    return pole
 
 
 # classky ---------------------------------------------------
@@ -143,15 +155,9 @@ def onStart():  # definicia premmennych na zaciatku
     kocky = [Kocka(1, 6, 4, 7, 5, 1), Kocka(1, 2, 7, 4, 9, 1), Kocka(1, 3, 8, 5, 6, 1), Kocka(1, 7, 8, 1, 5, 2), Kocka(1, 3, 4, 6, 9, 1), Kocka(1, 3, 2, 8, 9, 1)]
     zivotyHrac1 = 15
     zivotyHrac2 = 15
-    # bozskeTokenyHrac1 = 0
-    # bozskeTokenyHrac2 = 0
-    # todo sem mozno netreba passovat meno lebo uz classka rozhodne ako sa vola a teda napriamo ulozit meno v classke
+
     # bohoviaHrac1 = [Thor("Thor", 6, 4, 8, 12), Thrymr("Thrymr", 1, 3, 6, 9), Vidar("Vidar", 4, 2, 4, 6)]
     # bohoviaHrac2 = [Thor("Thor", 6, 4, 8, 12), Thrymr("Thrymr", 1, 3, 6, 9), Vidar("Vidar", 4, 2, 4, 6)]
-    # vybraneKocky1 = [None] * 6
-    # vybraneKocky2 = [None] * 6
-    # hrac1IdePrvy = random.choice([True, False])
-    # return kocky
 
 
 def hodKockami(hraca):  # nech sa hodia kocky a daju sa do nevybranych aby sa z nich vyberalo
@@ -330,7 +336,7 @@ def step(aivstup):
         vybraneKocky1[aivstup] = nevybraneKocky1[aivstup]
 
     vypisHraciaPlocha()
-    return getStavGlobalnyStav(), getAkcieVyberKociek(1), koniec
+    return getStavKockyHracov(), getStavZivotyHracov(), getKoloAKtoPrvy(), getAkcieVyberKociek(1), koniec
 
 
 def vypisKociek(vybraneKockyArray):
@@ -394,4 +400,4 @@ if __name__ == '__main__':
 
     stop = False
     while not stop:
-        var, var2, stop = step(int(input("input: ")))
+        stavKociek, stavZivotyHracov, stavKoloAKtoPrvy, maskaAkcii, terminal = step(int(input("input: ")))
