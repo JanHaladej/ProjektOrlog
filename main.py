@@ -14,6 +14,7 @@ vybraneKocky2 = [None] * 6
 hrac1IdePrvy = random.choice([True, False])  # hrac jedna je vzdy AI
 kolo = 0
 koniec = False
+reward = 0
 
 # staticke premenne globalne
 kocky = [None]
@@ -150,11 +151,23 @@ class Kocka:
 
 # metody pre fungovanie programu --------------------------------------------
 def onStart():  # definicia premmennych na zaciatku
-    global zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, kocky
+    global zivotyHrac1, zivotyHrac2, bohoviaHrac1, bohoviaHrac2, kocky, hrac1IdePrvy
 
     kocky = [Kocka(1, 6, 4, 7, 5, 1), Kocka(1, 2, 7, 4, 9, 1), Kocka(1, 3, 8, 5, 6, 1), Kocka(1, 7, 8, 1, 5, 2), Kocka(1, 3, 4, 6, 9, 1), Kocka(1, 3, 2, 8, 9, 1)]
     zivotyHrac1 = 15
     zivotyHrac2 = 15
+
+    # nastavenie prveho stavu
+    if not hrac1IdePrvy:
+        print("Random prvy")
+        hodKockami(2)
+        randomVyberKocky()
+        vypisHraciaPlocha()
+        # treba hodit aby aj AI vedelo z coho mam hadzat
+        hodKockami(1)
+    else:
+        print("Ai prve")
+        hodKockami(1)
 
     # bohoviaHrac1 = [Thor("Thor", 6, 4, 8, 12), Thrymr("Thrymr", 1, 3, 6, 9), Vidar("Vidar", 4, 2, 4, 6)]
     # bohoviaHrac2 = [Thor("Thor", 6, 4, 8, 12), Thrymr("Thrymr", 1, 3, 6, 9), Vidar("Vidar", 4, 2, 4, 6)]
@@ -305,7 +318,7 @@ def doplnOstatneKocky(vybraneKocky, nevybraneKocky):
 
 
 def step(aivstup):
-    global vybraneKocky1, nevybraneKocky1, koniec, zivotyHrac1, zivotyHrac2, kolo
+    global vybraneKocky1, nevybraneKocky1, koniec, zivotyHrac1, zivotyHrac2, kolo, reward
 
     if aivstup == 6:  # ak ukonci kolo vtedy sa ide dalej dovtedy opakovane vybera
         kolo += 1
@@ -392,18 +405,6 @@ def vypisHraciaPlocha():
 if __name__ == '__main__':
 
     onStart()
-
-    # nastavenie prveho stavu
-    if not hrac1IdePrvy:
-        print("Random prvy")
-        hodKockami(2)
-        randomVyberKocky()
-        vypisHraciaPlocha()
-        #treba hodit aby aj AI vedelo z coho mam hadzat
-        hodKockami(1)
-    else:
-        print("Ai prve")
-        hodKockami(1)
 
     terminal = False
     while not terminal:
