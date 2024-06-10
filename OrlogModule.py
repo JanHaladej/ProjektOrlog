@@ -166,7 +166,7 @@ class Orlog:
     def randomVyberKocky(self):
         for i in range(6):
             if self.vybraneKocky2[i] is None and random.choice([True, False]):
-                self.vybraneKocky2[i] = self.kocky[i].hodKockou()
+                self.vybraneKocky2[i] = self.nevybraneKocky2[i]
 
     def zistiStatyKociek(self, vybraneKocky):  # vrati vsetky premenne podla kociek co bolo hodene
         sekeraDMG = 0
