@@ -26,7 +26,6 @@ def klasickaHraUserInput(orlog):
     while not orlog.terminal:
         stavKociek, stavZivotyHracov, stavKoloAKtoPrvy, maskaAkcii, terminal, reward = orlog.step(int(input("input: ")))
 
-
 def randomInputyAdvantagePrvy(orlog, pocetReplikacii):
     start_player_wins = 0
     start_player = None
@@ -56,12 +55,13 @@ if __name__ == '__main__':
 
     orlog = OrlogModule.Orlog()
 
+    orlog.setVypisMaskaAkcii(True)
+    orlog.setVypisHraciaPlocha(True)
+    orlog.setVypisStavovyPriestor(True)
+    orlog.setVypisCinnostiPodrobne(True)
+
     # klasickaHraUserInput(orlog)
 
-    # randomInputy(orlog, 500)
+    randomInputy(orlog, 2)
 
-    randomInputyAdvantagePrvy(orlog, 10000)
-
-    #todo ukecanost
-    #todo pomery prveho a ci vyhral
-    #todo ake znaky boli vyberane
+    # randomInputyAdvantagePrvy(orlog, 10000)

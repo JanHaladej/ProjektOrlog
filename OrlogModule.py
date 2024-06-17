@@ -16,6 +16,10 @@ class Orlog:
             8: (1, 4),
             9: (1, 5)
         }
+        self.vypisMaskuAkcii = False
+        self.vypisHraciuPlochu = False
+        self.vypisStavovyPriestor = False
+        self.vypisCinnostiPodrobne = False
 
     # interakcie s agentom ----------------------------------------
     def getAkcieVyberKociek(self, hrac):
@@ -37,10 +41,11 @@ class Orlog:
                 else:
                     pole[i] = 0
 
-        print()
-        for j in range(7):
-            print(pole[j], end=" ")
-        print()
+        if self.vypisMaskuAkcii:
+            print("Maska akcii:")
+            for j in range(7):
+                print(pole[j], end=" ")
+            print()
 
         return pole
 
@@ -50,7 +55,7 @@ class Orlog:
         else:
             return self.slovnik[znak]
 
-    def getStavKockyHracov(self):
+    def getStavKockyHracov(self, vypisStavDoKonzoly):
         # x y z pre indexovanie potom
         array = [[[0 for _ in range(2)] for _ in range(6)] for _ in range(7)]  # inicializovane pre cely stavovy priestor
 
@@ -78,13 +83,14 @@ class Orlog:
                 array[riadokPreZnak][col][1] = 1
                 array[6][col][1] = zlatyBorder
 
-        # for k in range(2):
-        #     print(f"Layer z = {k}:")
-        #     for i in range(7):
-        #         for j in range(6):
-        #             print(array[i][j][k], end=" ")
-        #         print()
-        #     print()
+        if self.vypisStavovyPriestor and vypisStavDoKonzoly:
+            for k in range(2):
+                print(f"Layer z = {k}, ({'AI' if k == 0 else 'Random'})")
+                for i in range(7):
+                    for j in range(6):
+                        print(array[i][j][k], end=" ")
+                    print()
+                print()
 
         return array
 
@@ -121,6 +127,7 @@ class Orlog:
 
     # metody pre fungovanie programu --------------------------------------------
     def onStart(self):  # definicia premmennych na zaciatku
+        self.generalVypis("Zacina sa nova hra ---------------------------------")
         self.zivotyHrac1 = 15
         self.zivotyHrac2 = 15
         self.bozskeTokenyHrac1 = 0
@@ -138,19 +145,19 @@ class Orlog:
 
         # nastavenie prveho stavu
         if not self.hrac1IdePrvy:
-            print("Random prvy")
+            self.generalVypis("Random zacina prvy")
             self.hodKockami(2)
             self.randomVyberKocky()
-            self.vypisHraciaPlocha()
             # treba hodit aby aj AI vedelo z coho mam hadzat
             self.hodKockami(1)
         else:
-            print("Ai prve")
+            self.generalVypis("Ai zacina prve")
             self.hodKockami(1)
 
+        self.vypisy()
         # bohoviaHrac1 = [Thor("Thor", 6, 4, 8, 12), Thrymr("Thrymr", 1, 3, 6, 9), Vidar("Vidar", 4, 2, 4, 6)]
         # bohoviaHrac2 = [Thor("Thor", 6, 4, 8, 12), Thrymr("Thrymr", 1, 3, 6, 9), Vidar("Vidar", 4, 2, 4, 6)]
-        return self.getStavKockyHracov(), self.getStavZivotyHracov(), self.getKoloAKtoPrvy(), self.getAkcieVyberKociek(1), self.terminal, self.reward
+        return self.getStavKockyHracov(False), self.getStavZivotyHracov(), self.getKoloAKtoPrvy(), self.getAkcieVyberKociek(1), self.terminal, self.reward
 
     def hodKockami(self, hraca):  # nech sa hodia kocky a daju sa do nevybranych aby sa z nich vyberalo
         # nech sa hodia kocky co su este neni vybrane
@@ -164,9 +171,12 @@ class Orlog:
                     self.nevybraneKocky2[i] = self.kocky[i].hodKockou()
 
     def randomVyberKocky(self):
+        self.generalVypis("Random vyber kociek")
         for i in range(6):
             if self.vybraneKocky2[i] is None and random.choice([True, False]):
+                self.generalVypis("vybral si kocku na indexe: " + str(i))
                 self.vybraneKocky2[i] = self.nevybraneKocky2[i]
+        self.generalVypis("Random ukoncuje vyber kociek")
 
     def zistiStatyKociek(self, vybraneKocky):  # vrati vsetky premenne podla kociek co bolo hodene
         sekeraDMG = 0
@@ -204,7 +214,6 @@ class Orlog:
     def vypocitajStavPodlaPremennych(self):
         sekeraDMG1, sipDMG1, rukyDMG1, helmyHP1, stityHP1, bozskeTokeny1 = self.zistiStatyKociek(self.vybraneKocky1)
         sekeraDMG2, sipDMG2, rukyDMG2, helmyHP2, stityHP2, bozskeTokeny2 = self.zistiStatyKociek(self.vybraneKocky2)
-
 
         # bozske tokeny/ruky
         self.bozskeTokenyHrac1 += bozskeTokeny1
@@ -261,6 +270,7 @@ class Orlog:
             self.zivotyHrac1 += sipy2Stity1Rozdiel
 
     def resetRound(self):
+        self.generalVypis("Resetuje sa kolo")
         self.vybraneKocky1 = [None] * 6
         self.vybraneKocky2 = [None] * 6
         self.hrac1IdePrvy = not self.hrac1IdePrvy
@@ -270,15 +280,16 @@ class Orlog:
         self.bozskaAkciaHrac2 = None
 
         if not self.hrac1IdePrvy:
-            print("Random prvy")
+            self.generalVypis("Random ide prvy toto kolo")
             self.hodKockami(2)
             self.randomVyberKocky()
-            self.vypisHraciaPlocha()
             # treba hodit aby aj AI vedelo z coho mam hadzat
             self.hodKockami(1)
         else:
-            print("Ai prve")
+            self.generalVypis("Ai ide prve toto kolo")
             self.hodKockami(1)  # podla toho kto zacina sa hodia kocky
+
+        self.vypisy()
 
     def doplnOstatneKocky(self, vybraneKocky, nevybraneKocky):
         for i in range(6):
@@ -288,13 +299,16 @@ class Orlog:
     def step(self, aivstup):
 
         if aivstup == 6:  # ak ukonci kolo vtedy sa ide dalej dovtedy opakovane vybera
+            self.generalVypis("AI ukoncuje svoje kolo")
             self.kolo += 1
 
             # hadzanie random hodu ak ma hadzat, cize AI nejde za sebou
             if self.hrac1IdePrvy:  # ak random este nesiel a rolluje a potom aj na dlasie kolo
+                self.generalVypis("Random hadze kockami a vybera si znaky")
                 self.hodKockami(2)
                 self.randomVyberKocky()
                 if self.kolo < 2:  # toto sa vykona iba ak game stage je < ako 3 lebo potom uz nie na dlasie kolo
+                    self.generalVypis("Random hadze kockami a vybera si znaky")
                     self.hodKockami(2)
                     self.randomVyberKocky()
 
@@ -305,25 +319,32 @@ class Orlog:
             if self.kolo == 2:
                 self.doplnOstatneKocky(self.vybraneKocky1, self.nevybraneKocky1)
                 self.doplnOstatneKocky(self.vybraneKocky2, self.nevybraneKocky2)
-                self.vypisHraciaPlocha()
+                self.vypisy()
+                self.generalVypis("Ukoncuje sa velke kolo, doplnuju sa ostatne kocky, vyhodnocuju sa znaky ----------------------------")
                 self.vypocitajStavPodlaPremennych()
                 self.kolo = 0
+                self.vypisy()#treba pored resetom elbo tam uz moze hadzat Random
                 self.resetRound()
                 if self.zivotyHrac1 < 1 or self.zivotyHrac2 < 1:
                     self.terminal = True
+                    self.generalVypis("Hra skoncila --------------------------------")
                     if self.zivotyHrac1 > 0 or self.zivotyHrac2 > 0:
                         if self.zivotyHrac1 > 0:
                             self.reward = 1
+                            self.generalVypis("AI vyhralo")
                         else:
                             self.reward = -1
+                            self.generalVypis("Random vyhral")
                     else:
                         self.reward = 0  # obaja prehrali lebo maju pod 0
+                        self.generalVypis("Obaja prehrali")
 
         else:
+            self.generalVypis("AI si vybralo kocku: " + str(aivstup))
             self.vybraneKocky1[aivstup] = self.nevybraneKocky1[aivstup]
 
-        self.vypisHraciaPlocha()
-        return self.getStavKockyHracov(), self.getStavZivotyHracov(), self.getKoloAKtoPrvy(), self.getAkcieVyberKociek(1), self.terminal, self.reward
+        self.vypisy()
+        return self.getStavKockyHracov(False), self.getStavZivotyHracov(), self.getKoloAKtoPrvy(), self.getAkcieVyberKociek(1), self.terminal, self.reward
 
     def vypisKociek(self, vybraneKockyArray):
         kocky = "|"
@@ -364,3 +385,27 @@ class Orlog:
         print(f"Zivoty: {self.zivotyHrac2}           Bohovia: todo          BozskeTokeny: {self.bozskeTokenyHrac2}")
         print("--------------------------------------------------------------------------")
 
+    def generalVypis(self, text):
+        if self.vypisCinnostiPodrobne:
+            print(text, end=" ")
+            print()
+
+    def vypisy(self):
+
+        if self.vypisHraciuPlochu:
+            self.vypisHraciaPlocha()
+
+        if self.vypisStavovyPriestor:
+            self.getStavKockyHracov(True)
+
+    def setVypisMaskaAkcii(self, bool):
+        self.vypisMaskuAkcii = bool
+
+    def setVypisHraciaPlocha(self, bool):
+        self.vypisHraciuPlochu = bool
+
+    def setVypisStavovyPriestor(self, bool):
+        self.vypisStavovyPriestor = bool
+
+    def setVypisCinnostiPodrobne(self, bool):
+        self.vypisCinnostiPodrobne = bool
