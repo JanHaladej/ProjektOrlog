@@ -55,13 +55,13 @@ if __name__ == '__main__':
 
     orlog = OrlogModule.Orlog()
 
-    orlog.setVypisMaskaAkcii(True)
-    orlog.setVypisHraciaPlocha(True)
+    # orlog.setVypisMaskaAkcii(True)
+    # orlog.setVypisHraciaPlocha(True)
     orlog.setVypisStavovyPriestor(True)
-    orlog.setVypisCinnostiPodrobne(True)
+    # orlog.setVypisCinnostiPodrobne(True)
 
     # klasickaHraUserInput(orlog)
 
-    randomInputy(orlog, 2)
+    randomInputy(orlog, 100)
 
     # randomInputyAdvantagePrvy(orlog, 10000)

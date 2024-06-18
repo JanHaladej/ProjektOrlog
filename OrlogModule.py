@@ -91,8 +91,24 @@ class Orlog:
                         print(array[i][j][k], end=" ")
                     print()
                 print()
+            self.saveMatrixToFile(array, "output.txt")
+
 
         return array
+
+    def saveMatrixToFile(self, matrix, filename):
+        # Open the file in write mode
+        with open(filename, 'a') as file:
+            # Iterate over each layer
+            for k in range(2):
+                # Iterate over each column (skip the first row)
+                for col in range(6):
+                    # Create a string for each column, skipping the first row (i.e., row 0)
+                    col_string = ''.join(str(matrix[row][col][k]) for row in range(1, 7))
+                    # Write the column string to the file followed by a semicolon
+                    file.write(col_string + ';')
+                # Add a newline after each layer (optional)
+                # file.write('\n')
 
     def getStavZivotyHracov(self):
         pole = [0] * 2
