@@ -20,6 +20,7 @@ class Orlog:
         self.vypisHraciuPlochu = False
         self.vypisStavovyPriestor = False
         self.vypisCinnostiPodrobne = False
+        self.seedForRandomGenerators = False
 
     # interakcie s agentom ----------------------------------------
     def getAkcieVyberKociek(self, hrac):
@@ -91,7 +92,7 @@ class Orlog:
                         print(array[i][j][k], end=" ")
                     print()
                 print()
-            self.saveMatrixToFile(array, "output.txt")
+            # self.saveMatrixToFile(array, "output.txt") #todo toto asi prec ne ? :D
 
 
         return array
@@ -144,6 +145,9 @@ class Orlog:
     # metody pre fungovanie programu --------------------------------------------
     def onStart(self):  # definicia premmennych na zaciatku
         self.generalVypis("Zacina sa nova hra ---------------------------------")
+        if self.seedForRandomGenerators:
+            random.seed(42)
+
         self.zivotyHrac1 = 15
         self.zivotyHrac2 = 15
         self.bozskeTokenyHrac1 = 0
@@ -425,3 +429,6 @@ class Orlog:
 
     def setVypisCinnostiPodrobne(self, bool):
         self.vypisCinnostiPodrobne = bool
+
+    def setRandomSeed(self, bool):
+        self.seedForRandomGenerators = bool
