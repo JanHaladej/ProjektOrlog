@@ -359,6 +359,9 @@ class Orlog:
                         self.reward = 0  # obaja prehrali lebo maju pod 0
                         self.generalVypis("Obaja prehrali")
 
+                    self.generalVypis("Zivoty Hrac1 - AI: " + str(self.zivotyHrac1) + " Zivoty hrac2: " + str(self.zivotyHrac2))
+                    self.generalVypis("Reward je teda: " + str(self.reward))
+
         else:
             self.generalVypis("AI si vybralo kocku: " + str(aivstup))
             self.vybraneKocky1[aivstup] = self.nevybraneKocky1[aivstup]
@@ -430,5 +433,5 @@ class Orlog:
     def setVypisCinnostiPodrobne(self, bool):
         self.vypisCinnostiPodrobne = bool
 
-    def setRandomSeed(self, bool):
+    def setPredefinedSeed(self, bool):
         self.seedForRandomGenerators = bool
