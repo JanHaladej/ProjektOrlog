@@ -5,7 +5,6 @@ import torch.optim as optim  # For optimization
 import torch.nn as nn  # For neural network layers
 import torch.nn.functional as F  # For neural network functions
 
-
 # -----------------------------------------------------------------------------------------------------
 #
 # -----------------------------------------------------------------------------------------------------
@@ -86,7 +85,7 @@ class AgentDQN:
         self.epsilonMinimum = epsilonMinimum
         self.epsilonDecrement = epsilonDecrement
 
-    def chooseAction(self, state, actionMask):
+    def chooseAction(self, state, actionMask, writeOutQvalues):
         r = np.random.random()
 
         if r < self.epsilon:
@@ -95,21 +94,30 @@ class AgentDQN:
             action = np.random.choice(availableActions)
             return action
         else:
-            # return best q value choice
-            state = state.unsqueeze(0).to(self.device).float()
-            with torch.no_grad():
-                actions = self.onlineModel(state)
+            # #skusim ukoncovat kolo
+            # r = np.random.random()
+            # if r < 0.3 and sum(actionMask) != 7:
+            #     return 6
+            # else:
+                # return best q value choice
+                state = state.unsqueeze(0).to(self.device).float()
+                with torch.no_grad():
+                    actions = self.onlineModel(state)
 
-            # Convert actionMask to a tensor and find valid actions
-            actionMaskTensor = torch.tensor(actionMask, dtype=torch.bool, device=self.device)
-            availableActions = torch.where(actionMaskTensor)[0]  # Indices of valid actions
+                # Convert actionMask to a tensor and find valid actions
+                actionMaskTensor = torch.tensor(actionMask, dtype=torch.bool, device=self.device)
+                availableActions = torch.where(actionMaskTensor)[0]  # Indices of valid actions
 
-            # Select the valid action with the highest Q-value
-            validActionsQValues = actions[0, availableActions]  # Q-values of valid actions
-            bestValidActionIdx = torch.argmax(validActionsQValues).item()  # Index of the best valid action in availableActions
-            action = availableActions[bestValidActionIdx].item()  # Map back to original action space
+                # Select the valid action with the highest Q-value
+                validActionsQValues = actions[0, availableActions]  # Q-values of valid actions
 
-            return action
+                if writeOutQvalues: #pridane aby sa vypisovali q hodnoty
+                    print("Q-values of valid actions:", validActionsQValues.cpu().numpy())
+
+                bestValidActionIdx = torch.argmax(validActionsQValues).item()  # Index of the best valid action in availableActions
+                action = availableActions[bestValidActionIdx].item()  # Map back to original action space
+
+                return action
 
     def store(self, state, action, reward, state_, terminal):
         self.stepsStorageManager.store(state, action, reward, state_, terminal)
@@ -147,10 +155,10 @@ class AgentDQN:
 #
 # -----------------------------------------------------------------------------------------------------
 
-class NauralNetwork(nn.Module):
+class NeuralNetwork(nn.Module):
     def __init__(self, tableStatesHeight, tableStatesWidth, bothPlayerLivesStateSize, playerOrderAndRoundStates,
                  actionMaskSize):  # 7,6,2,2,7
-        super(NauralNetwork, self).__init__()
+        super(NeuralNetwork, self).__init__()
 
         self.conv1 = nn.Conv2d(in_channels=2, out_channels=16, kernel_size=3, stride=1,
                                padding=1)  # 2 channels for player 1 and player 2 table states

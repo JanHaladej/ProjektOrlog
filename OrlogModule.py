@@ -351,9 +351,11 @@ class Orlog:
                     if self.zivotyHrac1 > 0 or self.zivotyHrac2 > 0:
                         if self.zivotyHrac1 > 0:
                             self.reward = 1
+                            # self.reward = self.zivotyHrac1 / 15
                             self.generalVypis("AI vyhralo")
                         else:
                             self.reward = -1
+                            # self.reward = -1 * self.zivotyHrac2 / 15
                             self.generalVypis("Random vyhral")
                     else:
                         self.reward = 0  # obaja prehrali lebo maju pod 0
@@ -373,6 +375,33 @@ class Orlog:
         kocky = "|"
 
         for kocka in vybraneKockyArray:
+            if kocka == 1:
+                kocky += "Sekera     |"
+            elif kocka == 2:
+                kocky += "Sip        |"
+            elif kocka == 3:
+                kocky += "Ruka       |"
+            elif kocka == 4:
+                kocky += "Helma      |"
+            elif kocka == 5:
+                kocky += "Stit       |"
+            elif kocka == 6:
+                kocky += "Zlaty Sip  |"
+            elif kocka == 7:
+                kocky += "Zlata Ruka |"
+            elif kocka == 8:
+                kocky += "Zlata helma|"
+            elif kocka == 9:
+                kocky += "Zlaty Stit |"
+            else:
+                kocky += "           |"
+
+        return kocky
+
+    def vypisNevybranychKociek(self, nevybraneKockyArray):
+        kocky = "|"
+
+        for kocka in nevybraneKockyArray:
             if kocka == 1:
                 kocky += "Sekera     |"
             elif kocka == 2:
@@ -420,6 +449,7 @@ class Orlog:
 
         if self.vypisStavovyPriestor:
             self.getStavKockyHracov(True)
+            print(f"Vypis nevybranych kociek AI: {self.vypisNevybranychKociek(self.nevybraneKocky1)}")
 
     def setVypisMaskaAkcii(self, bool):
         self.vypisMaskuAkcii = bool

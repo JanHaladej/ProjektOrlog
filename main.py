@@ -67,47 +67,48 @@ def saveOutcomes(outcomes, cumulativeOutcomes, cumulativeReward, cumulativeRewar
         writer.writerow(row)
 
 
-def printer(poKolkoKolachVypis, aktualneKolo, epsilon, outcomes, cumulativeOutcomes):
+def printer(poKolkoKolachVypis, aktualneKolo, epsilon, outcomes, cumulativeOutcomes, optionsPicked):
         print(f'-----------------------------------------------------------')
         print(f'Epsilon: ', epsilon)
         print(f'Games {aktualneKolo - (poKolkoKolachVypis - 1)} to {aktualneKolo + 1}: Wins: {outcomes[0]}, Losses: {outcomes[1]}, Ties: {outcomes[2]}')
         cumulativeReward = (cumulativeOutcomes[0] + (cumulativeOutcomes[1] * (-1)))
         cumulativeRewardDividedByGames = (cumulativeOutcomes[0] + (cumulativeOutcomes[1] * (-1))) / (aktualneKolo + 1)
-        print(f'Cumulative: Wins: {cumulativeOutcomes[0]}, Losses: {cumulativeOutcomes[1]}, Ties: {cumulativeOutcomes[2]} \t cumulative reward = {cumulativeReward} \t cumulative reward / gamesPlayed = {cumulativeRewardDividedByGames}')
+        print(f'Cumulative: Wins: {cumulativeOutcomes[0]}, Losses: {cumulativeOutcomes[1]}, Ties: {cumulativeOutcomes[2]} \t cumulative reward = {cumulativeReward} \t cumulative reward / gamesPlayed = {cumulativeRewardDividedByGames} \t options picked:{optionsPicked}')
         print(f'-----------------------------------------------------------')
 
         saveOutcomes(outcomes, cumulativeOutcomes, cumulativeReward, cumulativeRewardDividedByGames)
 
 
 def AIrun(gamesCount):
-    orlog = OrlogModule.Orlog()  # Assuming Orlog is your environment class
+    orlog = OrlogModule.Orlog()
 
-    bufferSize = 512
+    bufferSize = 512 #512 pri 3000
     state_dim = (88,)  # State dimension based on state construction 2*42 + 2 + 2
     stepsStorage = AIpackage.StepsStorageManager(bufferSize, state_dim)
 
-    neuralNetwork = AIpackage.NauralNetwork(7, 6, 2, 2, 7)
+    neuralNetwork = AIpackage.NeuralNetwork(7, 6, 2, 2, 7)
 
     gamma = 0.99
     actionMaskSize = 7
-    lr = 0.0010  # 0.0005
+    lr = 0.005  # 0.0005
     updateSteps = 16384
     batchSize = 64  # 64
     epsilon = 1
-    epsilonDecrement = 0.00001  # 0.0000005 pri 50 000 #0.000005 pri 5000
-    epsilonMinimum = 0.00001   # 0.0001 pri 5000
-    agent = AIpackage.AgentDQN(gamma, actionMaskSize, neuralNetwork, stepsStorage, lr, updateSteps, batchSize, epsilon,
-                               epsilonDecrement, epsilonMinimum)
+    epsilonDecrement = 0.0000005  # 0.0000005 pri 50 000 #0.00001 pri 3000
+    epsilonMinimum = 0.0001   # 0.0001 pri 5000
+    agent = AIpackage.AgentDQN(gamma, actionMaskSize, neuralNetwork, stepsStorage, lr, updateSteps, batchSize, epsilon, epsilonDecrement, epsilonMinimum)
 
     # orlog.setVypisMaskaAkcii(True)
     # orlog.setVypisHraciaPlocha(True)
     # orlog.setVypisStavovyPriestor(True)
     # orlog.setVypisCinnostiPodrobne(True)
-    orlog.setPredefinedSeed(True)
+    # orlog.setPredefinedSeed(True)
+    writeOutQvalues = False #pre vypis ako sa menia
 
     # moje custom na vysledky
     outcomes = [0, 0, 0]  # [wins, losses, ties]
     cumulativeOutcomes = [0, 0, 0]
+    optionsPicked = [0, 0] #prve kolo a potom druhe kolo kolko pickol
 
     for i in range(gamesCount):
         # Unpack all values returned by onStart
@@ -115,7 +116,8 @@ def AIrun(gamesCount):
         state = torch.from_numpy(np.concatenate((np.array(state).flatten(), health, roundInfo))).float()
 
         while not terminal:
-            action = agent.chooseAction(state, actionMask)
+            action = agent.chooseAction(state, actionMask, writeOutQvalues)
+
             # Unpack all values returned by step
             nextState, health, roundInfo, actionMask, terminal, reward = orlog.step(action)
             nextState = torch.from_numpy(np.concatenate((np.array(nextState).flatten(), health, roundInfo))).float()
@@ -126,9 +128,13 @@ def AIrun(gamesCount):
 
             state = nextState
 
-        if reward == 1:
+            # zaznamenam kolko pickol v ktorom kole
+            if action != 6:
+                optionsPicked[roundInfo[1]] += 1
+
+        if reward > 0: # == 1
             outcomes[0] += 1
-        elif reward == -1:
+        elif reward < 0: # == -1
             outcomes[1] += 1
         else:
             outcomes[2] += 1
@@ -136,14 +142,16 @@ def AIrun(gamesCount):
         if (i + 1) % 100 == 0:
             for j in range(3):
                 cumulativeOutcomes[j] += outcomes[j]
-            printer(100, i, agent.epsilon, outcomes, cumulativeOutcomes)
+            printer(100, i, agent.epsilon, outcomes, cumulativeOutcomes, optionsPicked)
             outcomes = [0, 0, 0]
+            optionsPicked = [0, 0]
 
-        # if gamesCount == 1200:
-        #     orlog.setVypisMaskaAkcii(True)
-        #     # orlog.setVypisHraciaPlocha(True)
-        #     # orlog.setVypisStavovyPriestor(True)
-        #     orlog.setVypisCinnostiPodrobne(True)
+        if i == gamesCount - 2:
+            orlog.setVypisMaskaAkcii(True)
+            orlog.setVypisHraciaPlocha(True)
+            orlog.setVypisStavovyPriestor(True)
+            orlog.setVypisCinnostiPodrobne(True)
+            writeOutQvalues = True
 
 
 if __name__ == '__main__':
@@ -162,4 +170,4 @@ if __name__ == '__main__':
     #
     # # randomInputyAdvantagePrvy(orlog, 1)
 
-    AIrun(5000)
+    AIrun(50000)
